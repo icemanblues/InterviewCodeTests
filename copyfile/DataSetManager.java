@@ -1,5 +1,3 @@
-package com.kluge.blues.interview.copyfile;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

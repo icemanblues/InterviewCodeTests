@@ -1,9 +1,4 @@
 /**
- *
- */
-package com.kluge.blues.interview.copyfile;
-
-/**
  * @author roland
  *
  */

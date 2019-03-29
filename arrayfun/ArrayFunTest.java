@@ -1,5 +1,3 @@
-package com.kluge.blues.interview.arrayfun;
-
 import org.junit.Assert;
 import org.junit.Test;
 

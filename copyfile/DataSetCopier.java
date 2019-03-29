@@ -1,8 +1,3 @@
-/**
- *
- */
-package com.kluge.blues.interview.copyfile;
-
 import java.util.Scanner;
 import java.util.Set;
 

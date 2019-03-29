@@ -1,5 +1,3 @@
-package com.kluge.blues.interview.connected;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

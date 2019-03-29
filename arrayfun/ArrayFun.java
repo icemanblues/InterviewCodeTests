@@ -1,5 +1,3 @@
-package com.kluge.blues.interview.arrayfun;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
