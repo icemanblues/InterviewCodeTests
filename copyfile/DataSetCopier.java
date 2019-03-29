@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 /**
- * @author roland
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  *
  */
 public class DataSetCopier {

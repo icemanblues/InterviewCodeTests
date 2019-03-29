@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 /**
- * @author roland
- *
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  */
 public class JumbleSort {
 	private final String line;

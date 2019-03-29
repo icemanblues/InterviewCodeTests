@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
+ */
 public class DataSetManager {
 	private Map<Integer, Integer> dataSetToCenterMap = new HashMap<Integer, Integer>();
 	private List<DataCenter> dataCenterList;

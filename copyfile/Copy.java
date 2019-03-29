@@ -1,5 +1,5 @@
 /**
- * @author roland
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  *
  */
 public class Copy {

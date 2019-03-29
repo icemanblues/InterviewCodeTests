@@ -3,7 +3,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author roland
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  *
  */
 public class DataCenter {

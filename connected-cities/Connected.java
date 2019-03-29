@@ -31,7 +31,7 @@ import java.util.Set;
  * New York, Croton-Harmon
  * St. Petersburg, Tampa
  *
- * <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
+ * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  */
 public class Connected {
 	public static final String DELIMITER = ",";
