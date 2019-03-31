@@ -2,15 +2,12 @@ package main
 
 import "fmt"
 
-func queens() {
-	q := make([]int, 8, 8)
-	fmt.Printf("board initialized: %v\n", q)
-
+func queens(n int) {
+	q := make([]int, n, n)
 	ok := queenIter(q, 0)
 	if ok {
 		fmt.Printf("Solution Found: %v\n", q)
 	}
-
 }
 
 // queens we've placed on the board
@@ -20,8 +17,8 @@ func queenIter(q []int, i int) bool {
 		return true
 	}
 
-	// try numbers 0-7
-	for j := 0; j < 8; j++ {
+	// try numbers 0-n
+	for j := 0; j < len(q); j++ {
 		// need to check if j is valid
 		if valid := checkQueen(q, i, j); !valid {
 			continue
@@ -62,6 +59,6 @@ func checkQueen(q []int, i, j int) bool {
 }
 
 func main() {
-	fmt.Println("hello")
-	queens()
+	fmt.Println("hello n queens")
+	queens(8)
 }
