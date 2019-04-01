@@ -6,10 +6,13 @@ __pycache__
 *.ipr
 *.iml
 *.iws
+
 # vscode
 .vscode
-# gradle
 .gradle
+.project
+.classpath
+.settings
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
