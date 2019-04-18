@@ -35,6 +35,8 @@ For most of these, since they are one file and have no external dependencies, th
 `python algo.py`
 * Java  
 `javac Algo.java && java Algo`
+* JavaScript  
+`node algo.js`
 
 For some of take home assignments, those are closer to proper java projects, and will involve gradle/ maven and be a little on the larger side
 

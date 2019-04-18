@@ -17,7 +17,7 @@ func queenIter(q []int, i int) bool {
 		return true
 	}
 
-	// try numbers 0-n
+	// try numbers 0-(n-1)
 	for j := 0; j < len(q); j++ {
 		// need to check if j is valid
 		if valid := checkQueen(q, i, j); !valid {
@@ -42,7 +42,7 @@ func abs(x int) int {
 }
 
 func checkQueen(q []int, i, j int) bool {
-
+	// iterate over columns
 	for k := 0; k < i; k++ {
 		// check rows
 		if q[k] == j {
