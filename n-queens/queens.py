@@ -5,15 +5,14 @@ def queens(q, i):
         return True
 
     for j in range(len(q)):
-        # insert the trial value. if good, keep on recursing
-        # in the recurse cannot complete, then remove this and move on
-        q[i] = j
-
         # check rows and diagonals
         valid = valid_queens(q,i,j)
         if not valid:
             continue
 
+        # insert the trial value. if good, keep on recursing
+        # in the recurse cannot complete, then remove this and move on
+        q[i] = j
         # the recursion
         ok = queens(q, i+1)
         if ok:
