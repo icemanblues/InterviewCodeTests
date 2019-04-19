@@ -29,11 +29,15 @@ def bottom_up(triangle):
 
 if __name__ == "__main__":
     print("hello triangle")
-    tri = load("sample.txt")
-    print(tri)
+    sample_tri = load("sample.txt")
+    print(sample_tri)
 
-    print("solving triangle top down")
-    print(max_path(tri, 0, 0))
+    print("solving simple top down")
+    print(max_path(sample_tri, 0, 0))
 
-    print("solving triangle bottom up")
-    print(bottom_up(tri))
+    print("solving simple bottom up")
+    print(bottom_up(sample_tri))
+
+    print("solving HARD triangle bottom up")
+    hard_tri = load("triangle.txt")
+    print(bottom_up(hard_tri))
