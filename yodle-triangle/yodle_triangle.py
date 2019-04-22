@@ -10,11 +10,11 @@ def load(file):
     return triangle
 
 # using top down recursion to solve for the max path
-def max_path(triangle, r, c):
+def top_down(triangle, r, c):
     if r >= len(triangle):
         return 0
     
-    return triangle[r][c] + max(max_path(triangle, r+1, c), max_path(triangle, r+1, c+1))
+    return triangle[r][c] + max(top_down(triangle, r+1, c), top_down(triangle, r+1, c+1))
 
 # aggregating using a bottom up greedy method
 def bottom_up(triangle):
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     print(sample_tri)
 
     print("solving simple top down")
-    print(max_path(sample_tri, 0, 0))
+    print(top_down(sample_tri, 0, 0))
 
     print("solving simple bottom up")
     print(bottom_up(sample_tri))
