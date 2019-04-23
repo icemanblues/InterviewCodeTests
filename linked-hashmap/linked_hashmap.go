@@ -9,6 +9,7 @@ type node struct {
 
 type LinkedHashmap struct {
 	list *node
+	tail *node
 	hash map[interface{}]*node
 }
 
@@ -36,9 +37,14 @@ func (l *LinkedHashmap) touched(n *node) {
 		return
 	}
 
-	// if the head is empty, you are the head
+	if n == l.tail {
+		l.tail = n.p
+	}
+
+	// if the head is empty, you are the head and tail
 	if l.list == nil {
 		l.list = n
+		l.tail = n
 	}
 
 	// now move the node to the front of the list
@@ -59,11 +65,17 @@ func (l *LinkedHashmap) touched(n *node) {
 }
 
 func (l *LinkedHashmap) del(n *node) {
+	// this node is the tail, so change tail to be the new tail (its prev)
+	if n == l.tail {
+		l.tail = n.p
+	}
+
 	// this node is already the head of the list, just increment the list
 	if n == l.list {
 		l.list = l.list.n
 		return
 	}
+
 	// not the head of the list, but still within the list
 	prev, next := n.p, n.n
 	if prev != nil {
@@ -90,8 +102,9 @@ func (l *LinkedHashmap) Remove(k interface{}) (interface{}, bool) {
 	}
 
 	// found it, so remove the node from the list
-	delete(l.hash, k)
 	l.del(n)
+	// remove it from the map
+	delete(l.hash, k)
 	return n.v, true
 }
 
@@ -107,17 +120,10 @@ func (l *LinkedHashmap) Youngest() (k, v interface{}) {
 }
 
 func (l *LinkedHashmap) Oldest() (k, v interface{}) {
-	if l.list == nil {
+	if l.tail == nil {
 		return nil, nil
 	}
-
-	// FIXME: This is not constant time
-	// FIXME: It would need another node pointer as the tail of the list
-	n := l.list
-	for n.n != nil {
-		n = n.n
-	}
-	return n.k, n.v
+	return l.tail.k, l.tail.v
 }
 
 func main() {
@@ -126,14 +132,18 @@ func main() {
 	lm := New()
 	fmt.Printf("newly created linked hashmap: %v\n", lm)
 	fmt.Printf("newly created with size: %v\n", lm.Len())
+	yK, yV := lm.Youngest()
+	fmt.Printf("youngest pair: %v %v\n", yK, yV)
+	oldK, oldV := lm.Oldest()
+	fmt.Printf("oldest pair: %v %v\n", oldK, oldV)
 
 	lm.Put("hi", "hola")
 	fmt.Println("added hi=>hola")
 
 	fmt.Printf("added one element: %v\n", lm.Len())
-	yK, yV := lm.Youngest()
+	yK, yV = lm.Youngest()
 	fmt.Printf("youngest pair: %v %v\n", yK, yV)
-	oldK, oldV := lm.Oldest()
+	oldK, oldV = lm.Oldest()
 	fmt.Printf("oldest pair: %v %v\n", oldK, oldV)
 
 	lm.Put("world", "mundial")
@@ -179,6 +189,7 @@ func main() {
 	fmt.Printf("youngest pair: %v %v\n", yK, yV)
 	oldK, oldV = lm.Oldest()
 	fmt.Printf("oldest pair: %v %v\n", oldK, oldV)
+	fmt.Printf("length after one deleted element: %v\n", lm.Len())
 
 	fmt.Println("exiting...")
 }
