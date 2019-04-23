@@ -31,14 +31,14 @@ func (l *LinkedHashmap) Put(k, v interface{}) {
 
 // touched helper function to move this n to the front of the list
 func (l *LinkedHashmap) touched(n *node) {
-	// if the head is empty, you are the head
-	if l.list == nil {
-		l.list = n
-	}
-
 	// this node is already the head of the list, nothing to do here
 	if n == l.list {
 		return
+	}
+
+	// if the head is empty, you are the head
+	if l.list == nil {
+		l.list = n
 	}
 
 	// now move the node to the front of the list
