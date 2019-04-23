@@ -1,120 +1,99 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:roland.kluge@gmail.com">Roland Kluge</a>
  */
 public class YodleTriangle {
-	private final int numRows;
-	private final String filename;
-	private final int[][] triangle;
-	
-	public YodleTriangle(final int numRows, final String filename) {
-		this.numRows = numRows;
-		this.filename = filename;
-		
-		this.triangle = buildTriangle(numRows, filename);
-	}
-	
-	private int[][] buildTriangle(final int numRows, final String filename) {
-		final int[][] triangle = new int[numRows][];
-		
-		int lineNum = 1; // start at 1 because it is the number of elements in the line
+	final List<List<Integer>> triangle = new ArrayList<>();
+
+	public List<List<Integer>> buildTriangle(final String filename) {
 		try(BufferedReader br = new BufferedReader(new FileReader(filename));) {
 			String line = br.readLine();
 			while(line != null) {
 				String[] words = line.split("\\s+");
 				
-				if(words.length != lineNum) {
-					throw new IllegalArgumentException("Expecting "+ lineNum + " elements, found " + words.length + " instead");
-				}
-				
-				int[] numbers = Arrays.stream(words).mapToInt(Integer::parseInt).toArray();
-				triangle[lineNum-1] = numbers;
+				List<Integer> row = Arrays.stream(words)
+					.map(Integer::valueOf)
+					.collect(Collectors.toList());
+				triangle.add(row);
+
 				// increment the while loop
-				lineNum++;
 				line = br.readLine();
 			}
 		}
 		catch(Exception e) {
-			System.err.println("Error parsing file at line number: "+lineNum);
+			System.err.println("Error parsing file: "+filename);
 			e.printStackTrace();
 		}
 		
 		return triangle;
 	}
 	
-	private int[][] buildMemoGrid() {
-		final int[][] memo = new int[triangle.length][];
-		for(int i=0; i< triangle.length; i++) {
-			memo[i] = new int[triangle[i].length];
-		}
-		
-		return memo;
-	}
-	
 	public void printTriangle() {
-		for(int i=0; i<triangle.length; i++) {
+		for(int i=0; i<triangle.size(); i++) {
 			final int expectedLength = i+1;
-			System.out.println("line "+expectedLength+": "+Arrays.toString(triangle[i]));
+			System.out.println("line "+expectedLength+": "+triangle.get(i));
 		}
 	}
 	
 	public boolean validateTriangle() {
-		for(int i=0; i<triangle.length; i++) {
+		for(int i=0; i<triangle.size(); i++) {
 			final int expectedLength = i+1;
-			if(triangle[i].length != expectedLength) {
+			if(triangle.get(i).size() != expectedLength) {
 				return false;
 			}
 		}
 		
 		return true;
 	}
-	
-	/**
-	 * 
-	 * @param triangle the triangle
-	 * @param row the previous row used
-	 * @param col the previous col used
-	 * @param sum the current sum so far
-	 * @return
-	 */
+
 	private int maxSum(final int row, final int col, final int sum) {
 		final int nextRow = row+1;
 		
-		if(nextRow >= triangle.length) {
+		if(nextRow >= triangle.size()) {
 			return sum;
 		}
 		
 		// nextCol could be col or col+1
-		final int left = maxSum(nextRow, col, sum+triangle[nextRow][col]);
-		final int right= maxSum(nextRow, col+1, sum+triangle[nextRow][col+1]);
+		final int left = maxSum(nextRow, col, sum+triangle.get(nextRow).get(col));
+		final int right= maxSum(nextRow, col+1, sum+triangle.get(nextRow).get(col+1));
 		return Math.max(left, right);
 	}
 	
-	public int solveDFS() {
-		return maxSum(0, 0, triangle[0][0]);
+	public int topDown() {
+		return maxSum(0, 0, triangle.get(0).get(0));
 	}
 	
-	public int solve() {
-		final int[][] memo = buildMemoGrid();
+	private int[][] buildMemoGrid() {
+		final int[][] memo = new int[triangle.size()][];
+		for(int i=0; i< triangle.size(); i++) {
+			memo[i] = new int[triangle.get(i).size()];
+		}
 		
+		return memo;
+	}
+
+	public int bottomUp() {
 		// initialize the memo grid with the bottom values
 		// then bubble up with the max value
+		final int[][] memo = buildMemoGrid();
 		
-		// FIXME: this should be System.ArrayCopy
-		final int botRow = triangle.length-1;
-		for(int i=0; i< triangle[botRow].length; i++) {
-			memo[botRow][i] = triangle[botRow][i];
+		final int botRow = triangle.size()-1;
+		for(int i=0; i< triangle.get(botRow).size(); i++) {
+			memo[botRow][i] = triangle.get(botRow).get(i);
 		}
 		
 		for(int i=botRow-1; i>=0; i--) {
-			for(int j=0; j<triangle[i].length; j++) {
+			for(int j=0; j<triangle.get(i).size(); j++) {
 				// this is okay, since the row after i (i+1) will have (j+1)
 				final int left = memo[i+1][j];
 				final int right = memo[i+1][j+1];
-				memo[i][j] = triangle[i][j] + Math.max(left, right);
+				memo[i][j] = triangle.get(i).get(j) + Math.max(left, right);
 			}
 		}
 		
@@ -122,21 +101,19 @@ public class YodleTriangle {
 	}
 	
 	public static void main(String[] args) {
-		final int numRows = Integer.parseInt(args[0]);
-		final String filename = args[1];
-		final YodleTriangle triangle = new YodleTriangle(numRows, filename);
+		final YodleTriangle sample = new YodleTriangle();
+		sample.buildTriangle("sample.txt");
 		
-		final boolean isValid = triangle.validateTriangle();
-		if(!isValid) {
+		if(! sample.validateTriangle()) {
 			throw new IllegalArgumentException("This triangle is not valid");
 		}
+		sample.printTriangle();
 		
-		triangle.printTriangle();
-		
-		final int solution = triangle.solve();
-		System.out.println("memo: "+solution);
-		
-		final int old = triangle.solveDFS();
-		System.out.println("dfs: "+old);
+		System.out.println("sample bottomUp: "+sample.bottomUp());
+		System.out.println("sample  topDown: "+sample.topDown());
+
+		final YodleTriangle hard = new YodleTriangle();
+		hard.buildTriangle("triangle.txt");
+		System.out.println("hard bottomUp: "+hard.bottomUp());
 	}
 }
