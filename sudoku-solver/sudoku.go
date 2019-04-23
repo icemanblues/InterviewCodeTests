@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 // Nine stores the value of 9
 // we will use this variable instead of other hard codes
@@ -104,6 +108,49 @@ func inc(p point) point {
 	return point{p.x, p.y + 1}
 }
 
+func readPuzzle(filename string) ([][]int, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	puzzle := make([][]int, 9, 9)
+	p := 0
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		row := make([]int, 9, 9)
+		for i, r := range line {
+			if r != ' ' {
+				row[i] = int(r - '0')
+			}
+		}
+		puzzle[p] = row
+		p++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return puzzle, nil
+}
+
 func main() {
 	fmt.Println("Hello! I am a sudoku solver")
+
+	zero, err := readPuzzle("zero-sudoku.txt")
+	if err != nil {
+		fmt.Printf("Unable to load puzzle zero: %v\n", err)
+		return
+	}
+	fmt.Println(zero)
+
+	sudoku, err := readPuzzle("sudoku.txt")
+	if err != nil {
+		fmt.Printf("Unable to load puzzle zero: %v\n", err)
+		return
+	}
+	fmt.Println(sudoku)
 }
