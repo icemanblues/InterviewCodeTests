@@ -51,24 +51,30 @@ func (s *Sudoku) add(p play) {
 
 func (s *Sudoku) isValid(p play) bool {
 	n := len(s.board)
-	// check the row of this play
+
 	for i := 0; i < n; i++ {
+		// check the row of this play
 		if p.v == s.board[i][p.y] {
 			return false
 		}
-	}
 
-	// check the column of this play
-	for j := 0; j < n; j++ {
-		if p.v == s.board[p.x][j] {
+		// check the column of this play
+		if p.v == s.board[p.x][i] {
 			return false
 		}
 	}
 
 	// need to check sub-square
-	// TODO: use int division to determine the "quadrant"
-	// p.x / n
-	// p.y / n
+	l := int(math.Sqrt(float64(n)))
+	row := l * (p.x / l)
+	col := l * (p.y / l)
+	for i := 0; i < l; i++ {
+		for j := 0; j < l; j++ {
+			if p.v == s.board[row+i][col+j] {
+				return false
+			}
+		}
+	}
 
 	return true
 }
@@ -86,7 +92,19 @@ func Solve(s *Sudoku) bool {
 }
 
 func iter(s *Sudoku, x, y int) bool {
-	for i := 1; i <= 9; i++ {
+	// if we made it to the end of the board, we're done
+	// we iterate across x last. for each x, we do a y iteration as per inc()
+	if x == len(s.board) {
+		return true
+	}
+
+	// there already is a number here that we can't change
+	if s.board[x][y] != 0 {
+		xi, yi := inc(x, y, len(s.board))
+		return iter(s, xi, yi)
+	}
+
+	for i := 1; i <= len(s.board); i++ {
 		pl := play{x, y, i}
 		valid := s.isValid(pl)
 		if !valid {
@@ -94,22 +112,23 @@ func iter(s *Sudoku, x, y int) bool {
 		}
 
 		s.add(pl)
+
 		xi, yi := inc(x, y, len(s.board))
 		end := iter(s, xi, yi)
 		if !end {
 			s.undo()
 			continue
-		} else {
-			// we solved it, print the board and return it
-			return true
 		}
+
+		// we solved it, print the board and return it
+		return true
 	}
 
 	return false
 }
 
 func inc(x, y, n int) (int, int) {
-	if y == n {
+	if y == n-1 {
 		return x + 1, 0
 	}
 
@@ -186,4 +205,15 @@ func main() {
 		return
 	}
 	fmt.Println(sudoku)
+
+	easy, err := LoadPuzzle("easy.txt")
+	if err != nil {
+		fmt.Printf("Unable to load puzzle zero: %v\n", err)
+		return
+	}
+	fmt.Println(easy)
+
+	fmt.Println("attempting to solve...")
+	sudokuSolve := Solve(easy)
+	fmt.Printf("%v : %v\n", sudokuSolve, easy)
 }
