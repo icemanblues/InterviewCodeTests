@@ -3,30 +3,34 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 )
 
-// Nine stores the value of 9
-// we will use this variable instead of other hard codes
-// until we figure out the proper way to make it n-sized (where n is a square number)
-const Nine int = 9
-
-// point represents a (x,y) point or coordinate in a sudoku grid
-type point struct {
-	x, y int
-}
-
 // play represents a coordinate and the number written to it
 type play struct {
-	p point
-	i int
+	x, y, v int
 }
 
 // Sudoku represents a game board of Sudoku
 type Sudoku struct {
-	//TODO: maybe I should make this an slice of slices. we will use all the space, so not sparse
-	board map[point]int
+	board [][]int
 	plays []play
+}
+
+// NewSudoku constructs a new Sudoku board in the empty state
+func NewSudoku(n int) (*Sudoku, error) {
+	if !isSquare(n) {
+		return nil, fmt.Errorf("argument n {%v} is not a square number", n)
+	}
+
+	b := make([][]int, n, n)
+	for i := range b {
+		b[i] = make([]int, n, n)
+	}
+	return &Sudoku{
+		board: b,
+	}, nil
 }
 
 // Undo removes the last play made from the board
@@ -34,7 +38,7 @@ func (s *Sudoku) undo() play {
 	p := s.plays[len(s.plays)-1]
 
 	s.plays = s.plays[:len(s.plays)-1]
-	delete(s.board, p.p)
+	s.board[p.x][p.y] = 0
 
 	return p
 }
@@ -42,91 +46,100 @@ func (s *Sudoku) undo() play {
 // Add adds the play to the board
 func (s *Sudoku) add(p play) {
 	s.plays = append(s.plays, p)
-	s.board[p.p] = p.i
+	s.board[p.x][p.y] = p.v
 }
 
-func isValid(s Sudoku, p play) bool {
-	col, row := &point{}, &point{}
-	for i := 0; i < 0; i++ {
-		// need to check column
-		col.x, col.y = p.p.x, i
-		j, ok := s.board[*col]
-		if ok && j == p.i {
+func (s *Sudoku) isValid(p play) bool {
+	n := len(s.board)
+	// check the row of this play
+	for i := 0; i < n; i++ {
+		if p.v == s.board[i][p.y] {
 			return false
 		}
+	}
 
-		// need to check row
-		row.x, row.y = i, p.p.y
-		k, ok := s.board[*row]
-		if ok && k == p.i {
+	// check the column of this play
+	for j := 0; j < n; j++ {
+		if p.v == s.board[p.x][j] {
 			return false
 		}
 	}
 
 	// need to check sub-square
+	// TODO: use int division to determine the "quadrant"
+	// p.x / n
+	// p.y / n
 
 	return true
 }
 
-func solve(n int) (Sudoku, bool) {
-	// check if n is a square number
-
-	s := Sudoku{}
-	t := iter(s, point{0, 0})
-
-	return s, t
+// true if the number is a square number, integer square root
+func isSquare(n int) bool {
+	f := float64(n)
+	s := math.Sqrt(f)
+	return s == math.Floor(s)
 }
 
-func iter(s Sudoku, p point) bool {
+// Solve solves the given SuDoKu puzzle
+func Solve(s *Sudoku) bool {
+	return iter(s, 0, 0)
+}
+
+func iter(s *Sudoku, x, y int) bool {
 	for i := 1; i <= 9; i++ {
-		pl := play{p: p, i: i}
-		valid := isValid(s, pl)
+		pl := play{x, y, i}
+		valid := s.isValid(pl)
 		if !valid {
 			continue
 		}
 
 		s.add(pl)
-		end := iter(s, inc(p))
+		xi, yi := inc(x, y, len(s.board))
+		end := iter(s, xi, yi)
 		if !end {
-			s.undo() // might want to make this take the play to undo
+			s.undo()
 			continue
 		} else {
 			// we solved it, print the board and return it
 			return true
 		}
-
 	}
 
 	return false
 }
 
-func inc(p point) point {
-	if p.y == 8 {
-		return point{p.x + 1, 0}
+func inc(x, y, n int) (int, int) {
+	if y == n {
+		return x + 1, 0
 	}
 
-	return point{p.x, p.y + 1}
+	return x, y + 1
 }
 
-func readPuzzle(filename string) ([][]int, error) {
+// LoadPuzzle reads a sudoku file and creates a new SuDoKu board
+func LoadPuzzle(filename string) (*Sudoku, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	puzzle := make([][]int, 9, 9)
+	var puzzle [][]int
 	p := 0
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		row := make([]int, 9, 9)
-		for i, r := range line {
+		var row []int
+		for _, r := range line {
 			if r != ' ' {
-				row[i] = int(r - '0')
+				row = append(row, int(r-'0'))
+			} else {
+				row = append(row, 0)
 			}
 		}
-		puzzle[p] = row
+		if row != nil || len(row) != 0 {
+			puzzle = append(puzzle, row)
+		}
 		p++
 	}
 
@@ -134,20 +147,40 @@ func readPuzzle(filename string) ([][]int, error) {
 		return nil, err
 	}
 
-	return puzzle, nil
+	return &Sudoku{
+		board: puzzle,
+	}, nil
 }
 
 func main() {
 	fmt.Println("Hello! I am a sudoku solver")
 
-	zero, err := readPuzzle("zero-sudoku.txt")
+	fmt.Printf("is %v a square number? %v\n", 9, isSquare(9))
+	fmt.Printf("is %v a square number? %v\n", 21, isSquare(21))
+
+	empty, err := NewSudoku(9)
+	if err != nil {
+		fmt.Printf("Unable to create an empty puzzle: %v\n", err)
+		return
+	}
+	fmt.Println(empty)
+
+	// this one is supposed to fail
+	fail, err := NewSudoku(21)
+	if err != nil {
+		fmt.Printf("Unable to create a new puzzle: %v\n", err)
+	} else {
+		fmt.Println(fail)
+	}
+
+	zero, err := LoadPuzzle("zero-sudoku.txt")
 	if err != nil {
 		fmt.Printf("Unable to load puzzle zero: %v\n", err)
 		return
 	}
 	fmt.Println(zero)
 
-	sudoku, err := readPuzzle("sudoku.txt")
+	sudoku, err := LoadPuzzle("sudoku.txt")
 	if err != nil {
 		fmt.Printf("Unable to load puzzle zero: %v\n", err)
 		return
