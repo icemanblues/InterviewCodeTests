@@ -93,11 +93,40 @@ func TestNewSudoku(t *testing.T) {
 }
 
 func TestNewSudokuFromFile(t *testing.T) {
-	// load from a file
-	// confirm no errors
-	// then confirm no plays (empty list)
-	// check to see if specified points have specified values
-	// all others should have 0
+	tests := []struct {
+		file     string
+		num, sum int
+	}{
+		{"easy.txt", 34, 168},
+		{"zero-sudoku.txt", 0, 0},
+	}
+
+	for _, tt := range tests {
+		s, err := NewSudokuFromFile(tt.file)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if l := len(s.plays); l != 0 {
+			t.Fatalf("Sudoku from file has plays. Expected 0, Actual %d", l)
+		}
+
+		count, sigma := 0, 0
+		for i := 0; i < len(s.board); i++ {
+			for j := 0; j < len(s.board[i]); j++ {
+				if s.board[i][j] != 0 {
+					count++
+					sigma += s.board[i][j]
+				}
+			}
+		}
+		if count != tt.num {
+			t.Fatalf("Expecting count of non-zero values: %d Actual: %d", tt.num, count)
+		}
+		if sigma != tt.sum {
+			t.Fatalf("Expecting summation of all values: %d Actual: %d", tt.sum, sigma)
+		}
+	}
 }
 
 func TestAdd(t *testing.T) {
@@ -153,9 +182,27 @@ func TestUndo(t *testing.T) {
 }
 
 func TestIsValid(t *testing.T) {
-	// need to create a specific sudoku where 3 sub-squares only allow a specific value
-	// try a good value and a bad value for all
-	// 1 column
-	// 1 row
-	// 1 within sub-square
+	s, err := NewSudokuFromFile("test.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		p     play
+		valid bool
+	}{
+		{play{0, 2, 3}, true},
+		{play{0, 2, 4}, false},
+
+		{play{2, 0, 2}, true},
+		{play{2, 0, 1}, false},
+
+		{play{1, 1, 3}, true},
+		{play{1, 1, 1}, false},
+	}
+	for _, tt := range tests {
+		if actual := s.isValid(tt.p); actual != tt.valid {
+			t.Fatalf("isValid(%v) Expected: %v Actual %v", tt.p, tt.valid, actual)
+		}
+	}
 }
