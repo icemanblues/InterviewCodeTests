@@ -30,7 +30,7 @@ func readTriangle(filename string) ([][]int, error) {
 		}
 		triangle = append(triangle, ints)
 	}
-	if scanner.Err() != nil {
+	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
