@@ -1,5 +1,3 @@
-// To execute Go code, please declare a func main() in a package "main"
-
 package main
 
 import "fmt"
@@ -19,33 +17,34 @@ func main() {
 }
 
 func robotPaths(n, m int) int {
-  return robotPathsIter(n, m, 0, 0, 0)
+  return robotPathsIter(n, m, 0, 0)
 }
 
-func robotPathsIter(n, m, x, y, acc int) int {
+func robotPathsIter(n, m, x, y int) int {
   // are we at the goal
   if x == n-1 && y == m-1 {
-    return acc+1
+    return 1
   }
   
   var count int
   // move right
   if x != n-1 {
-    c := robotPathsIter(n,m, x+1, y, acc)
+    c := robotPathsIter(n,m, x+1, y)
     count += c
   }
   // move down
   if y != m-1 {
-    c := robotPathsIter(n,m, x, y+1, acc)
+    c := robotPathsIter(n,m, x, y+1)
     count += c
   }
   
-  return acc + count
+  return count
 }
 
 /* 
  
- Given a grid and a robot that starts from the top left corner of the grid, count the number of unique paths for the robot to reach bottom right corner of grid
+ Given a grid and a robot that starts from the top left corner of the grid, 
+ count the number of unique paths for the robot to reach bottom right corner of grid
  
  - Robot can only move down and to the right
  
