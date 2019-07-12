@@ -14,6 +14,7 @@ def find_consecutive_runs(input_array):
             
     return result
 
+
 class TestThis(unittest.TestCase):
     def test_simple(self):
         simple = [0, 1, 2]
