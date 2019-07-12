@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import unittest
 
 def find_consecutive_runs(input_array):
